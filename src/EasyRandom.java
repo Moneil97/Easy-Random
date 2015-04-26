@@ -1,18 +1,13 @@
-import java.awt.Rectangle;
-import java.util.Arrays;
-import java.util.Random;
+/**
+ * Convenience Class for getting random numbers
+ * @author Cameron O'Neil
+ * @param <Type> Byte,Short,Integer,Long,Float,Double only
+ */
 
 
 public class EasyRandom <Type>{
 
-	enum DataType{
-		
-		bytes,shorts,ints,longs,floats,doubles;
-		
-	}
-	
-	DataType type;
-	Type[] params;
+	private Type[] params;
 	
 	@SafeVarargs
 	public EasyRandom(Type... params) {
@@ -21,13 +16,7 @@ public class EasyRandom <Type>{
 		sort();
 	}
 	
-	private boolean hasDecimals(){
-		return (isFloat() || isDouble());
-	}
-	
 	private void sort(){
-		
-		say(Arrays.toString(params));
 		
 		if (isByte()){
 			Byte[] array = (Byte[]) params;
@@ -65,8 +54,6 @@ public class EasyRandom <Type>{
 				if (array[i] > array[i+1])
 					swap(params, i, i+1);
 		}
-		
-		say(Arrays.toString(params));
 		
 	}
 	
@@ -111,55 +98,140 @@ public class EasyRandom <Type>{
 			throw new RuntimeException("invalid parameters. \nSupports: Byte,Short,Integer,Long,Float,Double");
 	}
 	
-	Random rand = new Random();
-	
 	
 	@SuppressWarnings("unchecked")
 	public Type next(){
 
-		int start = whichSet()*2;
-		
-		if (isInt()){
+		int startPos = whichSet()*2;
+
+		if (isByte()){
+			Byte[] bytes = (Byte[]) params;
+			return (Type) getIntBetween(bytes[startPos], bytes[startPos+1]);
+		}
+		else if (isShort()){
+			Short[] shorts = (Short[]) params;
+			return (Type) getIntBetween(shorts[startPos], shorts[startPos+1]);
+		}
+		else if (isInt()){
 			Integer[] ints = (Integer[]) params;
-			//return (Type)(Integer)(ints[start] + rand.nextInt(ints[start+1] - ints[start]));
-			return (Type)(Integer)Math.round((float)(Math.random() * (ints[start+1] - ints[start])) + ints[start]);
+			return (Type) getIntBetween(ints[startPos], ints[startPos+1]);
 		}
 		else if (isLong()){
 			Long[] longs = (Long[]) params;
-			return (Type)(Long)Math.round((Math.random() * (longs[start+1] - longs[start])) + longs[start]);
+			return (Type) getLongBetween(longs[startPos], longs[startPos+1]);
+		}
+		else if (isFloat()){
+			Float[] floats = (Float[]) params;
+			return (Type) getDoubleBetween(floats[startPos], floats[startPos+1]);
+		}
+		else if (isDouble()){
+			Double[] doubles = (Double[]) params;
+			return (Type) getDoubleBetween(doubles[startPos], doubles[startPos+1]);
 		}
 		else{
 			return null;
 		}
-		
-		//int r = (int) (Math.random() * (upper - lower)) + lower;
 	}
-	
 	
 	
 	public int whichSet(){
-		return getIntBetween(0, params.length/2);
+		return getIntBetween(0, params.length/2 -1);
 	}
 	
-	
-	private int getIntBetween(int start, int end){
-		if (end < start){
-			int temp = end;
-			start = end;
-			end = temp;
+	public static Byte getByteBetween(byte lower, byte upper){
+		if (upper < lower){
+			byte temp = upper;
+			lower = upper;
+			upper = temp;
 		}
 		
-		return start + rand.nextInt(end-start);
+		return (byte)Math.round((float)(Math.random() * (upper - lower)) + lower);
+	}
+	
+	public static Short getShortBetween(short lower, short upper){
+		if (upper < lower){
+			short temp = upper;
+			lower = upper;
+			upper = temp;
+		}
+		
+		return (short)Math.round((float)(Math.random() * (upper - lower)) + lower);
+	}
+	
+	/**
+	 * Gets a random number between bounds
+	 * @param lower lower bound (Inclusive)
+	 * @param upper upper bound (Inclusive)
+	 * @return a random Integer
+	 */
+	public static Integer getIntBetween(int lower, int upper){
+		if (upper < lower){
+			int temp = upper;
+			lower = upper;
+			upper = temp;
+		}
+		
+		return Math.round((float)(Math.random() * (upper - lower)) + lower);
+	}
+	
+	public static Long getLongBetween(long lower, long upper){
+		if (upper < lower){
+			long temp = upper;
+			lower = upper;
+			upper = temp;
+		}
+		
+		return Math.round((Math.random() * (upper - lower)) + lower);
+	}
+	
+	public static Float getFloatBetween(float lower, float upper){
+		if (upper < lower){
+			float temp = upper;
+			lower = upper;
+			upper = temp;
+		}
+		
+		return ((float)Math.random() * (upper - lower)) + lower;
+	}
+	
+	public static Double getDoubleBetween(double lower, double upper){
+		if (upper < lower){
+			double temp = upper;
+			lower = upper;
+			upper = temp;
+		}
+		
+		return (Math.random() * (upper - lower)) + lower;
 	}
 
 	public static void main(String[] args) {
-		//EasyRandom<Long> rand = new EasyRandom<Long>(5l,10l, 70l,80l, 120l,150l, -9l, -5l, 56135435151654l, 561354351516545l);
-		EasyRandom<Integer> rand = new EasyRandom<Integer>(5,10, 80,70, 120,150, -5, -9, 561354351, 561354396);
 		
-//		for (int i=0; i<20; i++)
-//			say(rand.whichSet());
-		for (int i=0; i<20; i++)
-			say(rand.next());
+		//Tests:
+		
+		say("      Bytes:      ");
+		EasyRandom<Byte> bytes = new EasyRandom<Byte>(new Byte[]{5,10,  120,127,  -90,-128,  -20,-10});
+		for (int i=0; i<10; i++)
+			say(bytes.next());
+		say("     Shorts:      ");
+		EasyRandom<Short> shorts = new EasyRandom<Short>(new Short[]{12, 46,  89, 130});
+		for (int i=0; i<10; i++)
+			say(shorts.next());
+		say("     Ints:      ");
+		EasyRandom<Integer> ints = new EasyRandom<Integer>(5,10,  80,70,  120,150,  -5, -9,  561354351, 561354396);
+		for (int i=0; i<10; i++)
+			say(ints.next());
+		say("     Longs:      ");
+		EasyRandom<Long> longs = new EasyRandom<Long>(5l,10l, 70l,80l, 120l,150l, -9l,-5l, 56135435151654l,561354351516545l, 517413514354351l,-6l);
+		for (int i=0; i<10; i++)
+			say(longs.next());
+		say("     Floats:      ");
+		EasyRandom<Float> floats = new EasyRandom<Float>(0.0f, 8.6f,  186.3f,90.2f);
+		for (int i=0; i<10; i++)
+			say(floats.next());
+		say("     Doubles:      ");
+		EasyRandom<Double> dubs = new EasyRandom<Double>(1.2, 8.9,  110.9, 112.0,  132456.7,1234567.8);
+		for (int i=0; i<10; i++)
+			say(dubs.next());
 	}
 
 	public static void say(Object s) {
